@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Twitter Analytics Extractor",
+  "version": "1.0",
+  "description": "Extract and visualizes Twitter followers data using the Lllama 90B API.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://x.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*"],
+      "js": ["content.js"]
+    }
+  ]
+} 

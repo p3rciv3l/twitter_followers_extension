@@ -1,16 +1,46 @@
 Twitter Analytics Data Collection System PRD
 
-STEPS TO BUILD THIS THING:
-1. Get basic Puppeteer setup working
-2. Test screenshot capture mechanism
-3. Implement Vision API integration
-4. Add data parsing & CSV generation
-5. Add error handling & recovery
-6. Optimize performance
+IMPLEMENTATION APPROACH:
+1. Build Steps:
+   1. Create basic Chrome Extension structure
+      - manifest.json setup
+      - background script
+      - content script
+      - popup HTML/CSS/JS
+      - Extension icon and activation logic
+   2. Implement screenshot capture mechanism using chrome.tabs.captureVisibleTab
+   3. Add cursor movement and region capture using DOM manipulation
+   4. Integrate Vision API
+   5. Add CSV data handling and storage
+   6. Build visualization UI:
+      - Graph showing followers over time
+      - Interactive data points
+      - CSV download button
+      - Progress indicators
+      - Settings panel
 
+2. Chrome Extension Components:
+   - Background Script: Handles screenshot capture and API calls
+   - Content Script: Controls cursor movement and page interaction
+   - Popup UI: 
+     * User controls and status display
+     * Interactive graph visualization
+     * CSV download functionality
+     * Settings configuration
+
+3. Data Visualization:
+   - Interactive line graph showing:
+     * Followers over time
+     * Unfollows over time
+     * Net growth trend
+   - Hover states showing detailed data points
+   - Date range selector
+   - Export options for CSV data
+   - Responsive design for popup window
+   
 TOOLS & DEPENDENCIES:
 - Llama 90B vision model via Fireworks
-- Puppeteer
+- Chrome Extension APIs
 - CSV file handling
 
 EXTENSION CONFIGURATION:
@@ -27,14 +57,13 @@ EXTENSION CONFIGURATION:
 
 BROWSER AUTOMATION:
 1. Setup:
-   - Browser: Chromium (headless: false to allow visual monitoring)
    - Screen size: 1440x900 pixels
    - Default timeout: 30 seconds
-   - Puppeteer mouse control for cursor movement
-   - Puppeteer screenshot capability
+   - DOM-based cursor movement
+   - Chrome tabs.captureVisibleTab API for screenshots
 
 2. Navigation & Interaction:
-   - Use existing browser profile/cookies for authentication
+   - Use Chrome extension APIs for page interaction
    - Verify analytics page is loaded via element presence
    - Ensure graph is fully rendered before starting
    - Block page scrolling during capture
@@ -47,7 +76,7 @@ SCREENSHOT PROCESS:
    - Movement increment: 1 pixel
    - Cursor starts at 427,670 and moves rightward by 1 pixel until 877,754
    - Total captures: 450
-   - Use Puppeteer's screenshot API with clip area
+   - Use Chrome extension screenshot API
    - Handle page zoom levels
 
 2. Error Handling:
@@ -117,50 +146,12 @@ PERFORMANCE CONSIDERATIONS:
 4. Memory management for large datasets
 5. Clear cache on completion
 
-IMPLEMENTATION APPROACH:
-1. Build Steps:
-   1. Create basic Chrome Extension structure
-      - manifest.json setup
-      - background script
-      - content script
-      - popup HTML/CSS/JS
-      - Extension icon and activation logic
-   2. Implement screenshot capture mechanism using chrome.tabs.captureVisibleTab
-   3. Add cursor movement and region capture using DOM manipulation
-   4. Integrate Vision API
-   5. Add CSV data handling and storage
-   6. Build visualization UI:
-      - Graph showing followers over time
-      - Interactive data points
-      - CSV download button
-      - Progress indicators
-      - Settings panel
-
-2. Chrome Extension Components:
-   - Background Script: Handles screenshot capture and API calls
-   - Content Script: Controls cursor movement and page interaction
-   - Popup UI: 
-     * User controls and status display
-     * Interactive graph visualization
-     * CSV download functionality
-     * Settings configuration
-
-3. Data Visualization:
-   - Interactive line graph showing:
-     * Followers over time
-     * Unfollows over time
-     * Net growth trend
-   - Hover states showing detailed data points
-   - Date range selector
-   - Export options for CSV data
-   - Responsive design for popup window
-
 Here's the flow of the script:
 
 Upon the calling of the script, it should:
 1. Open a browser and navigate to https://x.com/i/account_analytics.
 2. Log in to the X account. (help me worked out the PRD for this)
-3. Once confirmed to be on the analystics page, Pupeteer should start its cursor at point 427:670 and move from
+3. Once confirmed to be on the analystics page, we should start the cursor at point 427:670 and move from
 427 and stop at 877, all while keeping the height the same. For each pixel movement rightward, it should take
 a screenshot at 375:574 on the top left and 877:754 on the bottom right. The should result in 450 screenshots,
 as 877 minus 427 equals 450.
@@ -180,3 +171,17 @@ screenshot:
    be placed in a row that corresponds to the 'Unfollows' column. Each 'Unfollows' entry should be in the 
    row beneath the previous 'Unfollows' entry.
 
+Testing Structure:
+src/tests/
+├── extension/
+│   ├── setup.test.js      # Tests for basic extension setup
+│   └── activation.test.js # Tests for icon activation
+├── screenshot/
+│   ├── capture.test.js    # Tests for screenshot mechanism
+│   └── cursor.test.js     # Tests for cursor movement
+├── vision/
+│   ├── api.test.js        # Tests for Vision API integration
+│   └── parsing.test.js    # Tests for data extraction
+├── storage/
+│   ├── csv.test.js        # Tests for CSV handling
+    └── validation.test.js # Tests for data validation
