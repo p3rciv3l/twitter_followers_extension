@@ -1,0 +1,182 @@
+Twitter Analytics Data Collection System PRD
+
+STEPS TO BUILD THIS THING:
+1. Get basic Puppeteer setup working
+2. Test screenshot capture mechanism
+3. Implement Vision API integration
+4. Add data parsing & CSV generation
+5. Add error handling & recovery
+6. Optimize performance
+
+TOOLS & DEPENDENCIES:
+- Llama 90B vision model via Fireworks
+- Puppeteer
+- CSV file handling
+
+EXTENSION CONFIGURATION:
+1. Activation:
+   - Extension icon becomes active only on x.com/*/account_analytics
+   - One-click activation from extension icon
+   - Clear visual indicator when extension is running
+
+2. Pre-run Checks:
+   - Verify user is logged in
+   - Verify viewport dimensions (1440x900)
+   - Show configuration popup if viewport adjustment needed
+   - Confirm analytics graph is fully loaded
+
+BROWSER AUTOMATION:
+1. Setup:
+   - Browser: Chromium (headless: false to allow visual monitoring)
+   - Screen size: 1440x900 pixels
+   - Default timeout: 30 seconds
+   - Puppeteer mouse control for cursor movement
+   - Puppeteer screenshot capability
+
+2. Navigation & Interaction:
+   - Use existing browser profile/cookies for authentication
+   - Verify analytics page is loaded via element presence
+   - Ensure graph is fully rendered before starting
+   - Block page scrolling during capture
+
+SCREENSHOT PROCESS:
+1. Configuration:
+   - Format: PNG
+   - Quality: 90%
+   - Capture area: 375,574 to 877,754
+   - Movement increment: 1 pixel
+   - Cursor starts at 427,670 and moves rightward by 1 pixel until 877,754
+   - Total captures: 450
+   - Use Puppeteer's screenshot API with clip area
+   - Handle page zoom levels
+
+2. Error Handling:
+   - Retry failed screenshots (max 3 attempts)
+   - Log failed captures
+   - Handle dynamic content loading
+   - Implement wait periods between captures (100ms)
+   - Pause/Resume capability
+
+DATA EXTRACTION & STORAGE:
+1. CSV File Structure:
+   - Filename format: x_analytics_YYYYMMDD_HHMMSS.csv
+   - Columns: Date (mm/dd/yyyy), New Follows (integer), Unfollows (integer)
+   - UTF-8 encoding
+   - Include headers
+   - Save to user's downloads folder
+   - Skip adding new rows if the date already exists in the CSV
+   - Sort entries by date when saving
+
+2. Vision API Integration:
+   - API key configuration in extension settings
+   - Retry logic for API calls (max 3 attempts)
+   - Timeout: 10 seconds per query
+   - Rate limiting: Max 10 concurrent requests
+   - If API costs exceed $0.50, the script should stop
+   - Display current API cost in extension popup
+
+3. Data Validation:
+   - Date format validation
+   - Numeric validation for follows/unfollows
+   - Handle missing/null values
+   - Duplicate date detection and prevention
+   - Log skipped duplicates for verification
+
+ERROR HANDLING & LOGGING:
+1. Extension Debug Log:
+   - Timestamp
+   - Operation type
+   - Error message
+   - Export logs feature
+
+2. Error Recovery:
+   - Implement resume capability from last successful capture
+   - Save partial results on failure
+   - Visual alerts in extension popup
+
+EXTENSION UI:
+1. Popup Interface:
+   - Start/Stop button
+   - Progress indicator (x/450 screenshots)
+   - Current status display
+   - API cost tracker
+   - Export CSV button
+   - Settings configuration
+
+2. Settings Page:
+   - API key configuration
+   - Cost limit adjustment
+   - Screenshot quality settings
+   - Download location preference
+   - Debug mode toggle
+
+PERFORMANCE CONSIDERATIONS:
+1. Implement batch processing for screenshots
+2. Cache API responses
+3. Implement parallel processing where possible
+4. Memory management for large datasets
+5. Clear cache on completion
+
+IMPLEMENTATION APPROACH:
+1. Build Steps:
+   1. Create basic Chrome Extension structure
+      - manifest.json setup
+      - background script
+      - content script
+      - popup HTML/CSS/JS
+      - Extension icon and activation logic
+   2. Implement screenshot capture mechanism using chrome.tabs.captureVisibleTab
+   3. Add cursor movement and region capture using DOM manipulation
+   4. Integrate Vision API
+   5. Add CSV data handling and storage
+   6. Build visualization UI:
+      - Graph showing followers over time
+      - Interactive data points
+      - CSV download button
+      - Progress indicators
+      - Settings panel
+
+2. Chrome Extension Components:
+   - Background Script: Handles screenshot capture and API calls
+   - Content Script: Controls cursor movement and page interaction
+   - Popup UI: 
+     * User controls and status display
+     * Interactive graph visualization
+     * CSV download functionality
+     * Settings configuration
+
+3. Data Visualization:
+   - Interactive line graph showing:
+     * Followers over time
+     * Unfollows over time
+     * Net growth trend
+   - Hover states showing detailed data points
+   - Date range selector
+   - Export options for CSV data
+   - Responsive design for popup window
+
+Here's the flow of the script:
+
+Upon the calling of the script, it should:
+1. Open a browser and navigate to https://x.com/i/account_analytics.
+2. Log in to the X account. (help me worked out the PRD for this)
+3. Once confirmed to be on the analystics page, Pupeteer should start its cursor at point 427:670 and move from
+427 and stop at 877, all while keeping the height the same. For each pixel movement rightward, it should take
+a screenshot at 375:574 on the top left and 877:754 on the bottom right. The should result in 450 screenshots,
+as 877 minus 427 equals 450.
+
+It would then feed those screenshots to the Google Cloud Vision API and ask a few questions for each 
+screenshot:
+
+1. Is there a date displayed within the screenshot?
+2. If there is a date, do three things:
+   a. Feed in the prompt to the Google Cloud Vision API: "What is the date? Reply with the date in mm/dd/yyy
+   format AND NOTHING ELSE." The response should be placed in a row that corresponds to the 'Date' column. 
+   Each new 'Date' entry should be in the row beneath the previous 'Date' entry.
+   b. Feed in the prompt Google Cloud Vision API: "How many new followers? Reply with the number AND NOTHING 
+   ELSE." The response should be placed in a row that corresponds to the 'New Follows' column. Each 'New 
+   Follows' entry should be in the row beneath the previous 'New Follows' entry.
+   c. Feed in the prompt: "How many unfollows? Reply with the number AND NOTHING ELSE." The response should
+   be placed in a row that corresponds to the 'Unfollows' column. Each 'Unfollows' entry should be in the 
+   row beneath the previous 'Unfollows' entry.
+
